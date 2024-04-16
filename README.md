@@ -13,7 +13,7 @@ udpate @ 2024/04/16
 
 2. use keyboard , digit 1 , to enable ADC log , press again to turn off ADC log
 
-![image](https://github.com/released/RL78_F24_ADC_PWM/blob/main/log_ADC#1.jpg)
+![image](https://github.com/released/RL78_F24_ADC_PWM/blob/main/log_ADC_1.jpg)
 
 3. use keyboard , press 'A' or 'a' , to increase PWM duty 5%
 
@@ -28,7 +28,7 @@ below is PWM duty adjust result (25%)
 
 4. below is ADC log ,
 
-![image](https://github.com/released/RL78_F24_ADC_PWM/blob/main/log_ADC#2.jpg)
+![image](https://github.com/released/RL78_F24_ADC_PWM/blob/main/log_ADC_2.jpg)
 
 5. below is PWM duty capture , 
 

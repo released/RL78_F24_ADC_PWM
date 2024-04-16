@@ -264,10 +264,10 @@ void ADC_VREF_config_Init(void)
 /*
     COPY FROM R_Config_S12AD0_Create
     channel : 0 , 1 , 6 , 7
-    PIN80
-    PIN81
-    PIN33
-    PIN34
+    P80
+    P81
+    P33
+    P34
 */
 void ADC_Channel_config_Init(void)
 {

@@ -58,7 +58,7 @@ void R_Config_INTC_Create(void)
     PPR10 = 1U;
     PPR00 = 1U;
     EGN0 = _01_INTP0_EDGE_FALLING_SEL;
-    EGP0 = _00_INTP0_EDGE_RISING_UNSEL;
+    EGP0 = _01_INTP0_EDGE_RISING_SEL;
 
     R_Config_INTC_Create_UserInit();
 }

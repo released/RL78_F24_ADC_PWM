@@ -58,8 +58,8 @@
 /*_____ F U N C T I O N S __________________________________________________*/
 
 
-unsigned int get_pwm_ch_duty(void);
-void set_pwm_ch_duty(unsigned int duty);
+unsigned int get_TAU1_pwm_ch_duty(unsigned char ch);
+void set_TAU1_pwm_ch_duty(unsigned char ch ,unsigned int duty);
 
 void ADC_Process_in_IRQ(void);
 
@@ -68,6 +68,8 @@ void reset_TIMER_PERIOD_1000MS(void);
 bool Is_TIMER_PERIOD_1000MS_Trig(void);
 void Timer_1ms_IRQ(void);
 
+void Button_Process_long_counter(void);
+void Button_Process_in_polling(void);
 void Button_Process_in_IRQ(void);
 void UARTx_Process(unsigned char rxbuf);
 

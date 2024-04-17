@@ -10,12 +10,12 @@
 
 struct flag_32bit flag_PROJ_CTL;
 #define FLAG_PROJ_TIMER_PERIOD_1000MS                 	(flag_PROJ_CTL.bit0)
-#define FLAG_PROJ_TRIG_BTN                       	    (flag_PROJ_CTL.bit1)
-#define FLAG_PROJ_TRIG_ADC_CH                 	        (flag_PROJ_CTL.bit2)
-#define FLAG_PROJ_TRIG_ADC_LOG                 		    (flag_PROJ_CTL.bit3)
-#define FLAG_PROJ_PWM_DUTY_INC                          (flag_PROJ_CTL.bit4)
-#define FLAG_PROJ_PWM_DUTY_DEC                          (flag_PROJ_CTL.bit5)
-#define FLAG_PROJ_REVERSE6                              (flag_PROJ_CTL.bit6)
+#define FLAG_PROJ_TRIG_BTN1                       	    (flag_PROJ_CTL.bit1)
+#define FLAG_PROJ_TRIG_BTN2                 	        (flag_PROJ_CTL.bit2)
+#define FLAG_PROJ_TRIG_ADC_CH                 		    (flag_PROJ_CTL.bit3)
+#define FLAG_PROJ_TRIG_ADC_LOG                          (flag_PROJ_CTL.bit4)
+#define FLAG_PROJ_PWM_DUTY_INC                          (flag_PROJ_CTL.bit5)
+#define FLAG_PROJ_PWM_DUTY_DEC                              (flag_PROJ_CTL.bit6)
 #define FLAG_PROJ_TIMER_PERIOD_SPECIFIC                 (flag_PROJ_CTL.bit7)
 
 
@@ -31,7 +31,11 @@ struct flag_32bit flag_PROJ_CTL;
 /*_____ D E F I N I T I O N S ______________________________________________*/
 
 volatile unsigned int counter_tick = 0;
-volatile unsigned int pwm_duty = 0;
+volatile unsigned int btn_counter_tick = 0;
+
+#define BTN_PRESSED_LONG                                (2500)
+
+volatile unsigned int pwm_duty[16] = {0};
 
 #define VBG_VOLTAGE                                     (1.45)  //(1450)
 
@@ -56,6 +60,25 @@ void reset_TIMER_PERIOD_1000MS(void)
 bool Is_TIMER_PERIOD_1000MS_Trig(void)
 {
     return FLAG_PROJ_TIMER_PERIOD_1000MS;
+}
+
+unsigned int btn_get_tick(void)
+{
+	return (btn_counter_tick);
+}
+
+void btn_set_tick(unsigned int t)
+{
+	btn_counter_tick = t;
+}
+
+void btn_tick_counter(void)
+{
+	btn_counter_tick++;
+    if (btn_get_tick() >= 60000)
+    {
+        btn_set_tick(0);
+    }
 }
 
 unsigned int get_tick(void)
@@ -109,14 +132,14 @@ void delay_ms(unsigned int ms)
         - SLAVE 1 : P12 , duty : 80%
         - SLAVE 4 : P31 , duty : 20%
 */
-unsigned int get_pwm_ch_duty(void)
+unsigned int get_TAU1_pwm_ch_duty(unsigned char ch)
 {
-	return (pwm_duty);
+	return (pwm_duty[ch]);
 }
 
-void set_pwm_ch_duty(unsigned int duty)
+void set_TAU1_pwm_ch_duty(unsigned char ch ,unsigned int duty)
 {
-	pwm_duty = duty;
+    pwm_duty[ch] = duty;
 }
 
 void PWM_Process_Adjust(void)
@@ -134,13 +157,13 @@ void PWM_Process_Adjust(void)
     {
         FLAG_PROJ_PWM_DUTY_INC = 0;
 
-        tmp = get_pwm_ch_duty();
+        tmp = get_TAU1_pwm_ch_duty(1);
         duty_hex = (5*16)/10;   // + 5 %
         tmp = (tmp >= 0xA0) ? (0xA0) : (tmp + duty_hex ) ;   
-        set_pwm_ch_duty(tmp);
+        set_TAU1_pwm_ch_duty(1,tmp);
         printf("+duty:0x%02X(%2d)\r\n",tmp , (tmp*10)>>4 );
 
-        TDR11 = get_pwm_ch_duty();
+        TDR11 = get_TAU1_pwm_ch_duty(1);
         TOM1 |= _0002_TAU_CH1_SLAVE_OUTPUT;
         TOL1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_LEVEL_L;
         TO1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_VALUE_1;
@@ -153,13 +176,13 @@ void PWM_Process_Adjust(void)
     {
         FLAG_PROJ_PWM_DUTY_DEC = 0;
 
-        tmp = get_pwm_ch_duty();
+        tmp = get_TAU1_pwm_ch_duty(1);
         duty_hex = (5*16)/10;   // - 5 %
         tmp = (tmp <= 0) ? (0) : (tmp - duty_hex ) ;   
-        set_pwm_ch_duty(tmp);
+        set_TAU1_pwm_ch_duty(1,tmp);
         printf("-duty:0x%02X(%2d)\r\n",tmp , (tmp*10)>>4 );
 
-        TDR11 = get_pwm_ch_duty();
+        TDR11 = get_TAU1_pwm_ch_duty(1);
         TOM1 |= _0002_TAU_CH1_SLAVE_OUTPUT;
         TOL1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_LEVEL_L;
         TO1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_VALUE_1;
@@ -188,14 +211,16 @@ void GetADC(unsigned char ch)
 {
     unsigned short tmp_buffer = 0;
 
+    FLAG_PROJ_TRIG_ADC_CH = 0;
+    R_Config_S12AD0_Start();
+    while(!FLAG_PROJ_TRIG_ADC_CH);
     R_Config_S12AD0_Get_ValueResult((e_ad_channel_t) ch,&tmp_buffer);
-    adc_buffer[ch] = tmp_buffer;
-    
-    // R_Config_S12AD0_Stop();
+    R_Config_S12AD0_Stop();
+    FLAG_PROJ_TRIG_ADC_CH = 0;
 
+    adc_buffer[ch] = tmp_buffer;    
     // printf("ch[%d]:0x%04X\r\n",ch,adc_buffer);
 
-    // R_Config_S12AD0_Start();
 }
 
 void GetVDDVoltage(void)
@@ -209,9 +234,12 @@ void GetVDDVoltage(void)
         VDD/VBG = 4096 / ConversionResult
     
     */
-
+    FLAG_PROJ_TRIG_ADC_CH = 0;
+    R_Config_S12AD0_Start();    // to get ADC internal vref channel
+    while(!FLAG_PROJ_TRIG_ADC_CH);
     R_Config_S12AD0_Get_ValueResult(ADINTERREFVOLT,&tmp_buffer);
     R_Config_S12AD0_Stop();
+    FLAG_PROJ_TRIG_ADC_CH = 0;
 
     tmp_float = VBG_VOLTAGE*4096/tmp_buffer;
     tmp_ul = (VBG_VOLTAGE*1000)*4096/tmp_buffer;
@@ -323,7 +351,9 @@ void ADC_Channel_config_Init(void)
 
 
 void ADC_Process(void)
-{
+{    
+    // init internal vref channel
+    ADC_VREF_config_Init();
     // get VREF
     GetVDDVoltage();
 
@@ -334,7 +364,6 @@ void ADC_Process(void)
     GetADC(1);
     GetADC(6);
     GetADC(7);
-    R_Config_S12AD0_Stop();
     
     #if 1   //ADC debug log
     if (FLAG_PROJ_TRIG_ADC_LOG)
@@ -348,8 +377,6 @@ void ADC_Process(void)
     }
     #endif
     
-    // init internal vref channel
-    ADC_VREF_config_Init();
 }
 
 void Timer_1ms_IRQ(void)
@@ -371,6 +398,8 @@ void Timer_1ms_IRQ(void)
     {
 
     }	
+
+    Button_Process_long_counter();
 }
 
 
@@ -396,17 +425,11 @@ void loop(void)
         LED_Toggle();             
     }
 
-    if (FLAG_PROJ_TRIG_BTN)
-    {
-        FLAG_PROJ_TRIG_BTN = 0;
-        printf("BTN pressed\r\n");
-    }
+    Button_Process_in_polling();
 
-    if ((FLAG_PROJ_TIMER_PERIOD_SPECIFIC) && 
-        (FLAG_PROJ_TRIG_ADC_CH == 1))
+    if (FLAG_PROJ_TIMER_PERIOD_SPECIFIC)
     {
         FLAG_PROJ_TIMER_PERIOD_SPECIFIC = 0;
-        FLAG_PROJ_TRIG_ADC_CH = 0;
 
         ADC_Process();
     }
@@ -415,10 +438,53 @@ void loop(void)
 
 }
 
+// F24 EVB , P137/INTP0 , set both edge 
+void Button_Process_long_counter(void)
+{
+    if (FLAG_PROJ_TRIG_BTN2)
+    {
+        btn_tick_counter();
+    }
+    else
+    {
+        btn_set_tick(0);
+    }
+}
+
+void Button_Process_in_polling(void)
+{
+    static unsigned char cnt = 0;
+
+    if (FLAG_PROJ_TRIG_BTN1)
+    {
+        FLAG_PROJ_TRIG_BTN1 = 0;
+        printf("BTN pressed(%d)\r\n",cnt);
+
+        if (cnt == 0)   //set both edge  , BTN pressed
+        {
+            FLAG_PROJ_TRIG_BTN2 = 1;
+        }
+        else if (cnt == 1)  //set both edge  , BTN released
+        {
+            FLAG_PROJ_TRIG_BTN2 = 0;
+        }
+
+        cnt = (cnt >= 1) ? (0) : (cnt+1) ;
+    }
+
+    if ((FLAG_PROJ_TRIG_BTN2 == 1) && 
+        (btn_get_tick() > BTN_PRESSED_LONG))
+    {         
+        printf("BTN pressed LONG\r\n");
+        btn_set_tick(0);
+        FLAG_PROJ_TRIG_BTN2 = 0;
+    }
+}
+
 // F24 EVB , P137/INTP0
 void Button_Process_in_IRQ(void)    
 {
-    FLAG_PROJ_TRIG_BTN = 1;
+    FLAG_PROJ_TRIG_BTN1 = 1;
 }
 
 void UARTx_Process(unsigned char rxbuf)
@@ -576,8 +642,6 @@ void hardware_init(void)
     R_Config_INTC_INTP0_Start();
     
     R_Config_TAU1_0_Start();    // PWM , 250K
-
-    R_Config_S12AD0_Start();    // to get ADC internal vref channel
 
     // check_reset_source();
     printf("\r\n%s finish\r\n\r\n",indicator);

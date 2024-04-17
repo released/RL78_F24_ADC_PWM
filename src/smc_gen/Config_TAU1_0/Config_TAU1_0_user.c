@@ -57,7 +57,7 @@ Global variables and functions
 void R_Config_TAU1_0_Create_UserInit(void)
 {
     /* Start user code for user init. Do not edit comment generated here */
-    set_pwm_ch_duty(_0080_TAU_TDR11_VALUE);
+    set_TAU1_pwm_ch_duty(1,TDR11);
     /* End user code. Do not edit comment generated here */
 }
 

@@ -806,7 +806,7 @@
                         <item id="enable" input="" vlaue="0"/>
                         <item id="disable" input="" vlaue="0"/>
                     </option>
-                    <option enabled="true" id="validedge" selection="falling">
+                    <option enabled="true" id="validedge" selection="both">
                         <item id="falling" input="" vlaue="0"/>
                         <item id="rising" input="" vlaue="0"/>
                         <item id="both" input="" vlaue="0"/>

@@ -235,8 +235,8 @@
           <Option>-END</Option>
           <Option>-Input=%BuildModeName%\%ProjectName%.abs</Option>
           <Option>-DEVICE=%MicomToolPath%\Device\RL78\Devicefile\DR7F124FPJ.DVF</Option>
-          <Option>-OUtput=%BuildModeName%\%ProjectName%.mot</Option>
-          <Option>-FOrm=Stype</Option>
+          <Option>-OUtput=%BuildModeName%\%ProjectName%.hex</Option>
+          <Option>-FOrm=Hexadecimal</Option>
           <Option>-NOMessage</Option>
           <Option>-EXIt</Option>
         </LinkOptions>

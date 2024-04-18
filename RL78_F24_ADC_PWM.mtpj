@@ -1268,10 +1268,10 @@ src\smc_gen\r_bsp\board\generic_rl78_f24
       <HexOptionEndRecord-DefaultValue>None</HexOptionEndRecord-DefaultValue>
       <HexOptionS9-DefaultValue>False</HexOptionS9-DefaultValue>
       <IsLockedByUser>False</IsLockedByUser>
-      <TimeTagModified--0>-8584923369109397872</TimeTagModified--0>
+      <TimeTagModified--0>-8584881743271110102</TimeTagModified--0>
       <HexOptionCheckOutputRomArea-0>False</HexOptionCheckOutputRomArea-0>
       <HexOptionCrc-0>False</HexOptionCrc-0>
-      <HexOptionForm-0>Stype</HexOptionForm-0>
+      <HexOptionForm-0>Hexadecimal</HexOptionForm-0>
       <HexOptionOtherAdditionalOptions-0 />
       <HexOptionOutput-0>True</HexOptionOutput-0>
       <HexOptionSameLinkMessage-0>True</HexOptionSameLinkMessage-0>
@@ -1281,7 +1281,7 @@ src\smc_gen\r_bsp\board\generic_rl78_f24
       <HexOptionRecordH-0>None</HexOptionRecordH-0>
       <HexOptionCrcCalculationRange-0 />
       <HexOptionNoMessageErrorNumber-0 />
-      <HexOptionOutputFileName-0>%ProjectName%.mot</HexOptionOutputFileName-0>
+      <HexOptionOutputFileName-0>%ProjectName%.hex</HexOptionOutputFileName-0>
       <HexOptionRecordS-0>None</HexOptionRecordS-0>
       <HexOptionChangeMessageInformation-0>None</HexOptionChangeMessageInformation-0>
       <HexOptionCrcType-0>Msb</HexOptionCrcType-0>

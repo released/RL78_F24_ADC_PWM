@@ -79,7 +79,7 @@ void R_Config_TAU1_0_Create(void)
     /* Channel 1 is used as slave channel for PWM output function */
     TMR11 = _0000_TAU_CLOCK_SELECT_CKM0 | _0000_TAU_CLOCK_MODE_CKS | _0000_TAU_COMBINATION_SLAVE | 
             _0400_TAU_TRIGGER_MASTER_INT | _0009_TAU_MODE_PWM_SLAVE;
-    TDR11 = _0080_TAU_TDR11_VALUE;
+    TDR11 = _00A0_TAU_TDR11_VALUE;
     TOM1 |= _0002_TAU_CH1_SLAVE_OUTPUT;
     TOL1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_LEVEL_L;
     TO1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_VALUE_1;

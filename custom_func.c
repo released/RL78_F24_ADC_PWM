@@ -142,6 +142,18 @@ void set_TAU1_pwm_ch_duty(unsigned char ch ,unsigned int duty)
     pwm_duty[ch] = duty;
 }
 
+
+/*copy from R_Config_TAU1_0_Create*/
+void generate_TAU1_pwm_ch1(void)
+{
+    TOM1 |= _0002_TAU_CH1_SLAVE_OUTPUT;
+    TOL1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_LEVEL_L;
+    TO1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_VALUE_1;
+    PWMDLY2 &= _FFF3_TAU_CH1_OUTPUT_CLEAR;
+    PWMDLY2 |= _0000_TAU_CH1_OUTPUT_NO_DELAY;
+    TOE1 |= _0002_TAU_CH1_OUTPUT_ENABLE; 
+}
+
 void PWM_Process_Adjust(void)
 {
     int tmp = 0;
@@ -158,18 +170,18 @@ void PWM_Process_Adjust(void)
         FLAG_PROJ_PWM_DUTY_INC = 0;
 
         tmp = get_TAU1_pwm_ch_duty(1);
-        duty_hex = (5*16)/10;   // + 5 %
-        tmp = (tmp >= 0xA0) ? (0xA0) : (tmp + duty_hex ) ;   
+	
+	/*
+	   _00A0_TAU_TDR11_VALUE : 100%
+	*/
+        duty_hex = _00A0_TAU_TDR11_VALUE / 100 * 5;   // + 5 %
+        tmp = (tmp >= _00A0_TAU_TDR11_VALUE) ? (_00A0_TAU_TDR11_VALUE) : (tmp + duty_hex ) ;   
+	
         set_TAU1_pwm_ch_duty(1,tmp);
-        printf("+duty:0x%02X(%2d)\r\n",tmp , (tmp*10)>>4 );
+        printf("+duty:0x%02X(%2.2f)\r\n",tmp , (float) tmp/_00A0_TAU_TDR11_VALUE*100 );
 
         TDR11 = get_TAU1_pwm_ch_duty(1);
-        TOM1 |= _0002_TAU_CH1_SLAVE_OUTPUT;
-        TOL1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_LEVEL_L;
-        TO1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_VALUE_1;
-        PWMDLY2 &= _FFF3_TAU_CH1_OUTPUT_CLEAR;
-        PWMDLY2 |= _0000_TAU_CH1_OUTPUT_NO_DELAY;
-        TOE1 |= _0002_TAU_CH1_OUTPUT_ENABLE;
+        generate_TAU1_pwm_ch1();
 
     }
     if (FLAG_PROJ_PWM_DUTY_DEC)
@@ -177,19 +189,15 @@ void PWM_Process_Adjust(void)
         FLAG_PROJ_PWM_DUTY_DEC = 0;
 
         tmp = get_TAU1_pwm_ch_duty(1);
-        duty_hex = (5*16)/10;   // - 5 %
-        tmp = (tmp <= 0) ? (0) : (tmp - duty_hex ) ;   
+	
+        duty_hex = _00A0_TAU_TDR11_VALUE / 100 * 5;   // - 5 %
+        tmp = (_00A0_TAU_TDR11_VALUE <= 0) ? (0) : (tmp - duty_hex ) ;  
+	
         set_TAU1_pwm_ch_duty(1,tmp);
-        printf("-duty:0x%02X(%2d)\r\n",tmp , (tmp*10)>>4 );
+        printf("-duty:0x%02X(%2.2f)\r\n",tmp , (float) tmp/_00A0_TAU_TDR11_VALUE*100 );
 
         TDR11 = get_TAU1_pwm_ch_duty(1);
-        TOM1 |= _0002_TAU_CH1_SLAVE_OUTPUT;
-        TOL1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_LEVEL_L;
-        TO1 &= (uint16_t)~_0002_TAU_CH1_OUTPUT_VALUE_1;
-        PWMDLY2 &= _FFF3_TAU_CH1_OUTPUT_CLEAR;
-        PWMDLY2 |= _0000_TAU_CH1_OUTPUT_NO_DELAY;
-        TOE1 |= _0002_TAU_CH1_OUTPUT_ENABLE;
-
+        generate_TAU1_pwm_ch1();
     }
 }
 

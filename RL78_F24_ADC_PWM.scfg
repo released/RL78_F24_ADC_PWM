@@ -1062,7 +1062,7 @@
             <allocatable id="TAU1">
                 <allocatable id="Slave1">
                     <option enabled="true" id="dutyvalue" selection="dutyvalue">
-                        <item id="dutyvalue" input="80" vlaue="128"/>
+                        <item id="dutyvalue" input="100" vlaue="160"/>
                     </option>
                     <option enabled="true" id="salveoutputinitial" selection="outputinitial0">
                         <item id="outputinitial0" input="" vlaue="0"/>

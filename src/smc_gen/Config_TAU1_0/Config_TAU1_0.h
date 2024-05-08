@@ -40,7 +40,7 @@ Macro definitions (Register bit)
 Macro definitions
 ***********************************************************************************************************************/
 #define _009F_TAU_TDR10_VALUE                              (0x009FU)    /* 16-bit timer data register 10 (TDR10) */
-#define _0080_TAU_TDR11_VALUE                              (0x0080U)    /* 16-bit timer data register 11 (TDR11) */
+#define _00A0_TAU_TDR11_VALUE                              (0x00A0U)    /* 16-bit timer data register 11 (TDR11) */
 #define _0020_TAU_TDR14_VALUE                              (0x0020U)    /* 16-bit timer data register 14 (TDR14) */
 
 /***********************************************************************************************************************

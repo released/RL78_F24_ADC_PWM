@@ -191,7 +191,7 @@ void PWM_Process_Adjust(void)
         tmp = get_TAU1_pwm_ch_duty(1);
 	
         duty_hex = _00A0_TAU_TDR11_VALUE / 100 * 5;   // - 5 %
-        tmp = (_00A0_TAU_TDR11_VALUE <= 0) ? (0) : (tmp - duty_hex ) ;  
+        tmp = (tmp <= 0) ? (0) : (tmp - duty_hex ) ;  
 	
         set_TAU1_pwm_ch_duty(1,tmp);
         printf("-duty:0x%02X(%2.2f)\r\n",tmp , (float) tmp/_00A0_TAU_TDR11_VALUE*100 );
